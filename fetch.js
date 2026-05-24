@@ -72,7 +72,9 @@ if (USE_GITHUB_DATA === "true") {
 
     console.log(`statusCode: ${res.statusCode}`);
     if (res.statusCode !== 200) {
-      throw new Error(ERR.requestFailed);
+      console.warn("Warning: " + ERR.requestFailed + ` (Status code: ${res.statusCode})`);
+      console.warn("Using existing or dummy profile.json instead of breaking the build.");
+      return;
     }
 
     res.on("data", d => {
@@ -87,14 +89,14 @@ if (USE_GITHUB_DATA === "true") {
   });
 
   req.on("error", error => {
-    throw error;
+    console.warn("Warning: GitHub API request failed: " + error.message);
   });
 
   req.write(data);
   req.end();
 }
 
-if (MEDIUM_USERNAME !== undefined) {
+if (MEDIUM_USERNAME) {
   console.log(`Fetching Medium blogs data for ${MEDIUM_USERNAME}`);
   const options = {
     hostname: "api.rss2json.com",
@@ -108,7 +110,9 @@ if (MEDIUM_USERNAME !== undefined) {
 
     console.log(`statusCode: ${res.statusCode}`);
     if (res.statusCode !== 200) {
-      throw new Error(ERR.requestMediumFailed);
+      console.warn("Warning: " + ERR.requestFailedMedium + ` (Status code: ${res.statusCode})`);
+      console.warn("Using existing or empty blogs.json instead of breaking the build.");
+      return;
     }
 
     res.on("data", d => {
@@ -123,7 +127,7 @@ if (MEDIUM_USERNAME !== undefined) {
   });
 
   req.on("error", error => {
-    throw error;
+    console.warn("Warning: Medium blogs request failed: " + error.message);
   });
 
   req.end();
